@@ -18,7 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,7 +50,7 @@ class RegisterLikeUseCaseTest {
 
         Like savedLike = Like.createNewLikeByCommand(registerLikeCommand);
 
-        given(readLikePort.findByUserIdAndCategoryAndTargetId(any(RegisterLikeCommand.class))).willReturn(Optional.empty());
+        given(readLikePort.findByUserIdAndCategoryAndTargetId(anyString(), anyInt(), anyLong())).willReturn(Optional.empty());
         given(registerLikePort.registerLike(any(Like.class))).willReturn(savedLike);
         given(likeUseCaseConverter.likeToRegisterResponseDto(any(Like.class))).willReturn(registerLikeResponseDto);
         //when
@@ -69,7 +69,7 @@ class RegisterLikeUseCaseTest {
 
         Like savedLike = Like.createNewLikeByCommand(registerLikeCommand);
 
-        given(readLikePort.findByUserIdAndCategoryAndTargetId(any(RegisterLikeCommand.class))).willReturn(Optional.of(savedLike));
+        given(readLikePort.findByUserIdAndCategoryAndTargetId(anyString(), anyInt(), anyLong())).willReturn(Optional.of(savedLike));
         //when then
         Assertions.assertThrows(ResourceAlreadyExistsException.class, () -> registerLikeUseCase.registerLike(registerLikeCommand));
     }

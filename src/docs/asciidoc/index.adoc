@@ -1,4 +1,4 @@
-= User Service API Document
+= Like Service API Document
 :doctype: book
 :source-highlighter: highlightjs
 :toc: left
@@ -60,3 +60,33 @@ include::{snippets}/register-like/response-body.adoc[]
 http-response
 
 include::{snippets}/register-like/http-response.adoc[]
+
+=== Delete Like
+
+path-parameters
+
+include::{snippets}/delete-like/path-parameters.adoc[]
+
+http-request
+
+include::{snippets}/delete-like/http-request.adoc[]
+
+request-headers
+
+include::{snippets}/delete-like/request-headers.adoc[]
+
+curl-request
+
+include::{snippets}/delete-like/curl-request.adoc[]
+
+response-fields
+
+include::{snippets}/delete-like/response-fields.adoc[]
+
+response-body
+
+include::{snippets}/delete-like/response-body.adoc[]
+
+http-response
+
+include::{snippets}/delete-like/http-response.adoc[]
