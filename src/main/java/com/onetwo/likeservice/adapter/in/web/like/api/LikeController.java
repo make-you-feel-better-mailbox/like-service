@@ -2,13 +2,17 @@ package com.onetwo.likeservice.adapter.in.web.like.api;
 
 import com.onetwo.likeservice.adapter.in.web.like.mapper.LikeDtoMapper;
 import com.onetwo.likeservice.adapter.in.web.like.request.RegisterLikeRequest;
+import com.onetwo.likeservice.adapter.in.web.like.response.CountLikeResponse;
 import com.onetwo.likeservice.adapter.in.web.like.response.DeleteLikeResponse;
 import com.onetwo.likeservice.adapter.in.web.like.response.RegisterLikeResponse;
+import com.onetwo.likeservice.application.port.in.command.CountLikeCommand;
 import com.onetwo.likeservice.application.port.in.command.DeleteLikeCommand;
 import com.onetwo.likeservice.application.port.in.command.RegisterLikeCommand;
+import com.onetwo.likeservice.application.port.in.response.CountLikeResponseDto;
 import com.onetwo.likeservice.application.port.in.response.DeleteLikeResponseDto;
 import com.onetwo.likeservice.application.port.in.response.RegisterLikeResponseDto;
 import com.onetwo.likeservice.application.port.in.usecase.DeleteLikeUseCase;
+import com.onetwo.likeservice.application.port.in.usecase.ReadLikeUseCase;
 import com.onetwo.likeservice.application.port.in.usecase.RegisterLikeUseCase;
 import com.onetwo.likeservice.common.GlobalUrl;
 import jakarta.validation.Valid;
@@ -24,6 +28,7 @@ public class LikeController {
 
     private final RegisterLikeUseCase registerLikeUseCase;
     private final DeleteLikeUseCase deleteLikeUseCase;
+    private final ReadLikeUseCase readLikeUseCase;
     private final LikeDtoMapper likeDtoMapper;
 
     /**
@@ -56,5 +61,20 @@ public class LikeController {
         DeleteLikeCommand deleteLikeCommand = likeDtoMapper.deleteRequestToCommand(userId, category, targetId);
         DeleteLikeResponseDto deleteLikeResponseDto = deleteLikeUseCase.deleteLike(deleteLikeCommand);
         return ResponseEntity.ok().body(likeDtoMapper.dtoToDeleteResponse(deleteLikeResponseDto));
+    }
+
+    /**
+     * Get Target's Like count inbound adapter
+     *
+     * @param category request delete like's category
+     * @param targetId request delete like's target id
+     * @return About target's like count
+     */
+    @GetMapping(GlobalUrl.LIKE_COUNT + GlobalUrl.PATH_VARIABLE_CATEGORY_WITH_BRACE + GlobalUrl.PATH_VARIABLE_TARGET_ID_WITH_BRACE)
+    public ResponseEntity<CountLikeResponse> getLikeCount(@PathVariable(GlobalUrl.PATH_VARIABLE_CATEGORY) Integer category,
+                                                          @PathVariable(GlobalUrl.PATH_VARIABLE_TARGET_ID) Long targetId) {
+        CountLikeCommand countLikeCommand = likeDtoMapper.countRequestToCommand(category, targetId);
+        CountLikeResponseDto countLikeResponseDto = readLikeUseCase.getLikeCount(countLikeCommand);
+        return ResponseEntity.ok().body(likeDtoMapper.dtoToCountResponse(countLikeResponseDto));
     }
 }

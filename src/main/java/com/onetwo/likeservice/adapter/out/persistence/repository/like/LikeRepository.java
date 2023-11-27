@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface LikeRepository extends JpaRepository<LikeEntity, Long> {
     Optional<LikeEntity> findByUserIdAndCategoryAndTargetIdAndState(String userId, Integer category, Long targetId, boolean persistenceNotDeleted);
+
+    Integer countByCategoryAndTargetIdAndState(Integer category, Long targetId, boolean persistenceNotDeleted);
 }

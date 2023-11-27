@@ -1,5 +1,6 @@
 package com.onetwo.likeservice.common.config;
 
+import com.onetwo.likeservice.common.GlobalUrl;
 import com.onetwo.likeservice.common.config.filter.FilterConfigure;
 import com.onetwo.likeservice.common.jwt.JwtAccessDeniedHandler;
 import com.onetwo.likeservice.common.jwt.JwtAuthenticationEntryPoint;
@@ -7,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -64,6 +66,8 @@ public class SecurityConfig {
 
     private MvcRequestMatcher[] createMvcRequestMatcherForWhitelist(MvcRequestMatcher.Builder mvc) {
         List<MvcRequestMatcher> mvcRequestMatcherList = Stream.of(WHITE_LIST).map(mvc::pattern).collect(Collectors.toList());
+
+        mvcRequestMatcherList.add(mvc.pattern(HttpMethod.GET, GlobalUrl.LIKE_COUNT + GlobalUrl.EVERY_UNDER_ROUTE));
 
         return mvcRequestMatcherList.toArray(MvcRequestMatcher[]::new);
     }

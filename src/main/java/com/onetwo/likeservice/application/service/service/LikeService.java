@@ -1,10 +1,13 @@
 package com.onetwo.likeservice.application.service.service;
 
+import com.onetwo.likeservice.application.port.in.command.CountLikeCommand;
 import com.onetwo.likeservice.application.port.in.command.DeleteLikeCommand;
 import com.onetwo.likeservice.application.port.in.command.RegisterLikeCommand;
+import com.onetwo.likeservice.application.port.in.response.CountLikeResponseDto;
 import com.onetwo.likeservice.application.port.in.response.DeleteLikeResponseDto;
 import com.onetwo.likeservice.application.port.in.response.RegisterLikeResponseDto;
 import com.onetwo.likeservice.application.port.in.usecase.DeleteLikeUseCase;
+import com.onetwo.likeservice.application.port.in.usecase.ReadLikeUseCase;
 import com.onetwo.likeservice.application.port.in.usecase.RegisterLikeUseCase;
 import com.onetwo.likeservice.application.port.out.ReadLikePort;
 import com.onetwo.likeservice.application.port.out.RegisterLikePort;
@@ -22,7 +25,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class LikeService implements RegisterLikeUseCase, DeleteLikeUseCase {
+public class LikeService implements RegisterLikeUseCase, DeleteLikeUseCase, ReadLikeUseCase {
 
     private final RegisterLikePort registerLikePort;
     private final ReadLikePort readLikePort;
@@ -83,5 +86,20 @@ public class LikeService implements RegisterLikeUseCase, DeleteLikeUseCase {
         updateLikePort.updateLike(like);
 
         return likeUseCaseConverter.likeToDeleteResponseDto(like);
+    }
+
+    /**
+     * Get Target's Like count use case,
+     * get target's like count on persistence
+     *
+     * @param countLikeCommand request count target data
+     * @return About target's like count
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public CountLikeResponseDto getLikeCount(CountLikeCommand countLikeCommand) {
+        int countLike = readLikePort.countLikeByCategoryAndTargetId(countLikeCommand.getCategory(), countLikeCommand.getTargetId());
+
+        return likeUseCaseConverter.resultToCountResponseDto(countLike);
     }
 }

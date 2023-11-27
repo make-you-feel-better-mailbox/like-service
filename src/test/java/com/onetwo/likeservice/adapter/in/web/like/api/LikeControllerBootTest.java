@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,8 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
@@ -52,6 +52,7 @@ class LikeControllerBootTest {
     private final String userId = "testUserId";
     private final int category = 1;
     private final long targetId = 11L;
+    private final int likeCount = 16;
 
     @Test
     @Transactional
@@ -118,6 +119,42 @@ class LikeControllerBootTest {
                                 ),
                                 responseFields(
                                         fieldWithPath("isDeleteSuccess").type(JsonFieldType.BOOLEAN).description("삭제 성공 여부")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @WithMockUser(username = userId)
+    @DisplayName("[통합][Web Adapter] Like 갯수 조회 - 성공 테스트")
+    void countLikeSuccessTest() throws Exception {
+        //given
+        for (int i = 0; i < likeCount; i++) {
+            RegisterLikeCommand registerLikeCommand = new RegisterLikeCommand(userId + i, category, targetId);
+            registerLikeUseCase.registerLike(registerLikeCommand);
+        }
+
+        //when
+        ResultActions resultActions = mockMvc.perform(
+                get(GlobalUrl.LIKE_COUNT + GlobalUrl.PATH_VARIABLE_CATEGORY_WITH_BRACE + GlobalUrl.PATH_VARIABLE_TARGET_ID_WITH_BRACE
+                        , category, targetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .headers(testHeader.getRequestHeader())
+                        .accept(MediaType.APPLICATION_JSON));
+        //then
+        resultActions.andExpect(status().isOk())
+                .andDo(print())
+                .andDo(document("count-like",
+                                requestHeaders(
+                                        headerWithName(GlobalStatus.ACCESS_ID).description("서버 Access id"),
+                                        headerWithName(GlobalStatus.ACCESS_KEY).description("서버 Access key")
+                                ),
+                                pathParameters(
+                                        parameterWithName(GlobalUrl.PATH_VARIABLE_CATEGORY).description("조회할 Like의 category"),
+                                        parameterWithName(GlobalUrl.PATH_VARIABLE_TARGET_ID).description("조회할 Like의 target id")
+                                ),
+                                responseFields(
+                                        fieldWithPath("likeCount").type(JsonFieldType.NUMBER).description("Like 갯수")
                                 )
                         )
                 );
