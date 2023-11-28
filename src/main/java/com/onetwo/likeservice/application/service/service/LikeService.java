@@ -2,9 +2,11 @@ package com.onetwo.likeservice.application.service.service;
 
 import com.onetwo.likeservice.application.port.in.command.CountLikeCommand;
 import com.onetwo.likeservice.application.port.in.command.DeleteLikeCommand;
+import com.onetwo.likeservice.application.port.in.command.LikeFilterCommand;
 import com.onetwo.likeservice.application.port.in.command.RegisterLikeCommand;
 import com.onetwo.likeservice.application.port.in.response.CountLikeResponseDto;
 import com.onetwo.likeservice.application.port.in.response.DeleteLikeResponseDto;
+import com.onetwo.likeservice.application.port.in.response.FilteredLikeResponseDto;
 import com.onetwo.likeservice.application.port.in.response.RegisterLikeResponseDto;
 import com.onetwo.likeservice.application.port.in.usecase.DeleteLikeUseCase;
 import com.onetwo.likeservice.application.port.in.usecase.ReadLikeUseCase;
@@ -18,9 +20,12 @@ import com.onetwo.likeservice.common.exceptions.NotFoundResourceException;
 import com.onetwo.likeservice.common.exceptions.ResourceAlreadyExistsException;
 import com.onetwo.likeservice.domain.Like;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -101,5 +106,39 @@ public class LikeService implements RegisterLikeUseCase, DeleteLikeUseCase, Read
         int countLike = readLikePort.countLikeByCategoryAndTargetId(countLikeCommand.getCategory(), countLikeCommand.getTargetId());
 
         return likeUseCaseConverter.resultToCountResponseDto(countLike);
+    }
+
+    /**
+     * Get Filtered like use case,
+     * Get Filtered slice like data
+     *
+     * @param likeFilterCommand filter condition and pageable
+     * @return content and slice data
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Slice<FilteredLikeResponseDto> filterLike(LikeFilterCommand likeFilterCommand) {
+        boolean isAtLeastConditionNotExist = isAtLeastConditionNotExist(likeFilterCommand);
+
+        if (isAtLeastConditionNotExist)
+            throw new BadRequestException("condition must have user id or target information");
+
+        List<Like> likeList = readLikePort.filterLike(likeFilterCommand);
+
+        boolean hasNext = likeList.size() > likeFilterCommand.getPageable().getPageSize();
+
+        if (hasNext) likeList.remove(likeList.size() - 1);
+
+        List<FilteredLikeResponseDto> filteredLikeResponseDtoList = likeList.stream()
+                .map(likeUseCaseConverter::likeToFilteredResponse).toList();
+
+        return new SliceImpl<>(filteredLikeResponseDtoList, likeFilterCommand.getPageable(), hasNext);
+    }
+
+    private boolean isAtLeastConditionNotExist(LikeFilterCommand likeFilterCommand) {
+        boolean isUserIdConditionExist = likeFilterCommand.getUserId() != null;
+        boolean isTargetConditionExist = likeFilterCommand.getCategory() != null && likeFilterCommand.getTargetId() != null;
+
+        return !(isUserIdConditionExist || isTargetConditionExist);
     }
 }

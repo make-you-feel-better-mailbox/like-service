@@ -68,6 +68,7 @@ public class SecurityConfig {
         List<MvcRequestMatcher> mvcRequestMatcherList = Stream.of(WHITE_LIST).map(mvc::pattern).collect(Collectors.toList());
 
         mvcRequestMatcherList.add(mvc.pattern(HttpMethod.GET, GlobalUrl.LIKE_COUNT + GlobalUrl.EVERY_UNDER_ROUTE));
+        mvcRequestMatcherList.add(mvc.pattern(HttpMethod.GET, GlobalUrl.LIKE_FILTER));
 
         return mvcRequestMatcherList.toArray(MvcRequestMatcher[]::new);
     }

@@ -2,6 +2,7 @@ package com.onetwo.likeservice.application.service.converter;
 
 import com.onetwo.likeservice.application.port.in.response.CountLikeResponseDto;
 import com.onetwo.likeservice.application.port.in.response.DeleteLikeResponseDto;
+import com.onetwo.likeservice.application.port.in.response.FilteredLikeResponseDto;
 import com.onetwo.likeservice.application.port.in.response.RegisterLikeResponseDto;
 import com.onetwo.likeservice.domain.Like;
 import org.springframework.stereotype.Component;
@@ -21,5 +22,16 @@ public class LikeUseCaseConverterImpl implements LikeUseCaseConverter {
     @Override
     public CountLikeResponseDto resultToCountResponseDto(int countLike) {
         return new CountLikeResponseDto(countLike);
+    }
+
+    @Override
+    public FilteredLikeResponseDto likeToFilteredResponse(Like like) {
+        return new FilteredLikeResponseDto(
+                like.getId(),
+                like.getUserId(),
+                like.getCategory(),
+                like.getTargetId(),
+                like.getCreatedAt()
+        );
     }
 }
