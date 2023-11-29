@@ -48,4 +48,18 @@ public class Like extends BaseDomain {
         setCreatedAt(Instant.now());
         setCreateUser(this.userId);
     }
+
+    public void deleteLike() {
+        this.state = true;
+        setUpdatedAt(Instant.now());
+        setUpdateUser(this.userId);
+    }
+
+    public boolean isDeleted() {
+        return this.state;
+    }
+
+    public boolean isSameUserId(String userId) {
+        return this.userId.equals(userId);
+    }
 }

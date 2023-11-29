@@ -26,14 +26,6 @@ eureka:
     service-url:
       defaultZone: http://127.0.0.1:8761/eureka
 
-logging:
-  level:
-    org:
-      hibernate:
-        orm:
-          jdbc:
-            bind: trace
-
 jwt:
   secret-key: secret-key-one-two-dear-my-x-it-will-be-change-next-time
 
