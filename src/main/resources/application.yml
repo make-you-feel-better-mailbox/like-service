@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: comment-service
+    name: like-service
   h2:
     console:
       enabled: true
@@ -31,3 +31,9 @@ jwt:
 
 access-id: server-access-id
 access-key: server-access-key
+
+mailbox-auto-config:
+  option: "on"
+  access-key-check: "ture"
+  logging: "on"
+  security: "on"

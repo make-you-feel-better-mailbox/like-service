@@ -11,4 +11,6 @@ public interface LikeRepository extends JpaRepository<LikeEntity, Long>, QLikeRe
     Optional<LikeEntity> findByUserIdAndCategoryAndTargetIdAndState(String userId, Integer category, Long targetId, boolean persistenceNotDeleted);
 
     Integer countByCategoryAndTargetIdAndState(Integer category, Long targetId, boolean persistenceNotDeleted);
+
+    Integer countByUserIdAndCategoryAndTargetIdAndState(String userId, Integer category, Long targetId, boolean persistenceNotDeleted);
 }

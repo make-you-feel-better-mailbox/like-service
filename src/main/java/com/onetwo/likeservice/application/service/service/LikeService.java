@@ -1,13 +1,7 @@
 package com.onetwo.likeservice.application.service.service;
 
-import com.onetwo.likeservice.application.port.in.command.CountLikeCommand;
-import com.onetwo.likeservice.application.port.in.command.DeleteLikeCommand;
-import com.onetwo.likeservice.application.port.in.command.LikeFilterCommand;
-import com.onetwo.likeservice.application.port.in.command.RegisterLikeCommand;
-import com.onetwo.likeservice.application.port.in.response.CountLikeResponseDto;
-import com.onetwo.likeservice.application.port.in.response.DeleteLikeResponseDto;
-import com.onetwo.likeservice.application.port.in.response.FilteredLikeResponseDto;
-import com.onetwo.likeservice.application.port.in.response.RegisterLikeResponseDto;
+import com.onetwo.likeservice.application.port.in.command.*;
+import com.onetwo.likeservice.application.port.in.response.*;
 import com.onetwo.likeservice.application.port.in.usecase.DeleteLikeUseCase;
 import com.onetwo.likeservice.application.port.in.usecase.ReadLikeUseCase;
 import com.onetwo.likeservice.application.port.in.usecase.RegisterLikeUseCase;
@@ -15,11 +9,11 @@ import com.onetwo.likeservice.application.port.out.ReadLikePort;
 import com.onetwo.likeservice.application.port.out.RegisterLikePort;
 import com.onetwo.likeservice.application.port.out.UpdateLikePort;
 import com.onetwo.likeservice.application.service.converter.LikeUseCaseConverter;
-import com.onetwo.likeservice.common.exceptions.BadRequestException;
-import com.onetwo.likeservice.common.exceptions.NotFoundResourceException;
 import com.onetwo.likeservice.common.exceptions.ResourceAlreadyExistsException;
 import com.onetwo.likeservice.domain.Like;
 import lombok.RequiredArgsConstructor;
+import onetwo.mailboxcommonconfig.common.exceptions.BadRequestException;
+import onetwo.mailboxcommonconfig.common.exceptions.NotFoundResourceException;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
@@ -118,21 +112,34 @@ public class LikeService implements RegisterLikeUseCase, DeleteLikeUseCase, Read
     @Override
     @Transactional(readOnly = true)
     public Slice<FilteredLikeResponseDto> filterLike(LikeFilterCommand likeFilterCommand) {
-        boolean isAtLeastConditionNotExist = isAtLeastConditionNotExist(likeFilterCommand);
-
-        if (isAtLeastConditionNotExist)
+        if (isAtLeastConditionNotExist(likeFilterCommand))
             throw new BadRequestException("condition must have user id or target information");
 
         List<Like> likeList = readLikePort.filterLike(likeFilterCommand);
 
         boolean hasNext = likeList.size() > likeFilterCommand.getPageable().getPageSize();
 
-        if (hasNext) likeList.remove(likeList.size() - 1);
+        if (hasNext) likeList.removeLast();
 
         List<FilteredLikeResponseDto> filteredLikeResponseDtoList = likeList.stream()
                 .map(likeUseCaseConverter::likeToFilteredResponse).toList();
 
         return new SliceImpl<>(filteredLikeResponseDtoList, likeFilterCommand.getPageable(), hasNext);
+    }
+
+    /**
+     * Get Boolean about User like Target use case
+     *
+     * @param likeTargetCheckCommand request target data and user data
+     * @return Boolean about user like target
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public LikeTargetCheckResponseDto userLikeTargetCheck(LikeTargetCheckCommand likeTargetCheckCommand) {
+        int countLike = readLikePort.countLikeByUserIdAndCategoryAndTargetId(likeTargetCheckCommand.getUserId(),
+                likeTargetCheckCommand.getCategory(), likeTargetCheckCommand.getTargetId());
+
+        return likeUseCaseConverter.resultToLikeTargetCheckResponseDto(countLike > 0);
     }
 
     private boolean isAtLeastConditionNotExist(LikeFilterCommand likeFilterCommand) {

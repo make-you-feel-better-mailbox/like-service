@@ -14,6 +14,7 @@ public class Like extends BaseDomain {
 
     private Long id;
     private String userId;
+    /* 1: posing 2:comment */
     private Integer category;
     private Long targetId;
     private Boolean state;
