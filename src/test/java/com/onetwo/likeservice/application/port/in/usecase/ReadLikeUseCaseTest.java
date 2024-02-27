@@ -8,8 +8,8 @@ import com.onetwo.likeservice.application.port.in.response.FilteredLikeResponseD
 import com.onetwo.likeservice.application.port.out.ReadLikePort;
 import com.onetwo.likeservice.application.service.converter.LikeUseCaseConverter;
 import com.onetwo.likeservice.application.service.service.LikeService;
-import com.onetwo.likeservice.common.exceptions.BadRequestException;
 import com.onetwo.likeservice.domain.Like;
+import onetwo.mailboxcommonconfig.common.exceptions.BadRequestException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

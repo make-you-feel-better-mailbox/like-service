@@ -15,11 +15,11 @@ import com.onetwo.likeservice.application.port.out.ReadLikePort;
 import com.onetwo.likeservice.application.port.out.RegisterLikePort;
 import com.onetwo.likeservice.application.port.out.UpdateLikePort;
 import com.onetwo.likeservice.application.service.converter.LikeUseCaseConverter;
-import com.onetwo.likeservice.common.exceptions.BadRequestException;
-import com.onetwo.likeservice.common.exceptions.NotFoundResourceException;
 import com.onetwo.likeservice.common.exceptions.ResourceAlreadyExistsException;
 import com.onetwo.likeservice.domain.Like;
 import lombok.RequiredArgsConstructor;
+import onetwo.mailboxcommonconfig.common.exceptions.BadRequestException;
+import onetwo.mailboxcommonconfig.common.exceptions.NotFoundResourceException;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
@@ -127,7 +127,7 @@ public class LikeService implements RegisterLikeUseCase, DeleteLikeUseCase, Read
 
         boolean hasNext = likeList.size() > likeFilterCommand.getPageable().getPageSize();
 
-        if (hasNext) likeList.remove(likeList.size() - 1);
+        if (hasNext) likeList.removeLast();
 
         List<FilteredLikeResponseDto> filteredLikeResponseDtoList = likeList.stream()
                 .map(likeUseCaseConverter::likeToFilteredResponse).toList();

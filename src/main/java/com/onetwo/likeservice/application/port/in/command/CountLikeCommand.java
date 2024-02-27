@@ -1,8 +1,8 @@
 package com.onetwo.likeservice.application.port.in.command;
 
-import com.onetwo.likeservice.application.port.SelfValidating;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import onetwo.mailboxcommonconfig.common.SelfValidating;
 
 @Getter
 public final class CountLikeCommand extends SelfValidating<CountLikeCommand> {
