@@ -112,7 +112,7 @@ class LikeFilterControllerBootTest {
                                 responseFields(
                                         fieldWithPath("content[]").type(JsonFieldType.ARRAY).description("like List"),
                                         fieldWithPath("content[].likeId").type(JsonFieldType.NUMBER).description("like의 id"),
-                                        fieldWithPath("content[].category").type(JsonFieldType.NUMBER).description("like가 등록돼 있는 target의 category"),
+                                        fieldWithPath("content[].category").type(JsonFieldType.NUMBER).description("like가 등록돼 있는 target의 category (1: posting, 2: comment)"),
                                         fieldWithPath("content[].targetId").type(JsonFieldType.NUMBER).description("like가 등록돼 있는 target의 target id"),
                                         fieldWithPath("content[].userId").type(JsonFieldType.STRING).description("like 작성자 user id"),
                                         fieldWithPath("content[].createdDate").type(JsonFieldType.STRING).description("like 작성 일자"),

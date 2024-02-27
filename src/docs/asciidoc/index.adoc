@@ -121,6 +121,36 @@ http-response
 
 include::{snippets}/user-like-check/http-response.adoc[]
 
+=== Like counter
+
+path-parameters
+
+include::{snippets}/count-like/path-parameters.adoc[]
+
+http-request
+
+include::{snippets}/count-like/http-request.adoc[]
+
+request-headers
+
+include::{snippets}/count-like/request-headers.adoc[]
+
+curl-request
+
+include::{snippets}/count-like/curl-request.adoc[]
+
+response-fields
+
+include::{snippets}/count-like/response-fields.adoc[]
+
+response-body
+
+include::{snippets}/count-like/response-body.adoc[]
+
+http-response
+
+include::{snippets}/count-like/http-response.adoc[]
+
 == 2. Get Filtered Posting
 
 === Filtering Posting
