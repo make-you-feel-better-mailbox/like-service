@@ -78,7 +78,7 @@ class LikeControllerBootTest {
                                         headerWithName(GlobalStatus.ACCESS_TOKEN).description("유저의 access-token")
                                 ),
                                 requestFields(
-                                        fieldWithPath("category").type(JsonFieldType.NUMBER).description("like를 등록할 target의 category ( 1: posting, 2: Like"),
+                                        fieldWithPath("category").type(JsonFieldType.NUMBER).description("like를 등록할 target의 category ( 1: posting, 2: comment"),
                                         fieldWithPath("targetId").type(JsonFieldType.NUMBER).description("like를 등록할 target id")
                                 ),
                                 responseFields(
@@ -125,7 +125,7 @@ class LikeControllerBootTest {
     }
 
     @Test
-    @WithMockUser(username = userId)
+    @Transactional
     @DisplayName("[통합][Web Adapter] Like 갯수 조회 - 성공 테스트")
     void countLikeSuccessTest() throws Exception {
         //given
@@ -155,6 +155,42 @@ class LikeControllerBootTest {
                                 ),
                                 responseFields(
                                         fieldWithPath("likeCount").type(JsonFieldType.NUMBER).description("Like 갯수")
+                                )
+                        )
+                );
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = userId)
+    @DisplayName("[통합][Web Adapter] Like 등록 여부 조회 - 성공 테스트")
+    void userTargetLikeCheckSuccessTest() throws Exception {
+        //given
+        RegisterLikeCommand registerLikeCommand = new RegisterLikeCommand(userId, category, targetId);
+        registerLikeUseCase.registerLike(registerLikeCommand);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(
+                get(GlobalUrl.LIKE_ROOT + GlobalUrl.PATH_VARIABLE_CATEGORY_WITH_BRACE + GlobalUrl.PATH_VARIABLE_TARGET_ID_WITH_BRACE
+                        , category, targetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .headers(testHeader.getRequestHeaderWithMockAccessKey(userId))
+                        .accept(MediaType.APPLICATION_JSON));
+        //then
+        resultActions.andExpect(status().isOk())
+                .andDo(print())
+                .andDo(document("user-like-check",
+                                requestHeaders(
+                                        headerWithName(GlobalStatus.ACCESS_ID).description("서버 Access id"),
+                                        headerWithName(GlobalStatus.ACCESS_KEY).description("서버 Access key"),
+                                        headerWithName(GlobalStatus.ACCESS_TOKEN).description("유저의 access-token")
+                                ),
+                                pathParameters(
+                                        parameterWithName(GlobalUrl.PATH_VARIABLE_CATEGORY).description("조회할 Like의 category"),
+                                        parameterWithName(GlobalUrl.PATH_VARIABLE_TARGET_ID).description("조회할 Like의 target id")
+                                ),
+                                responseFields(
+                                        fieldWithPath("isUserLikeTarget").type(JsonFieldType.BOOLEAN).description("Like 등록 여부")
                                 )
                         )
                 );

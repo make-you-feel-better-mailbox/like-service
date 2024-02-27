@@ -166,4 +166,38 @@ class LikeControllerValidationTest {
         resultActions.andExpect(status().isBadRequest())
                 .andDo(print());
     }
+
+    @Test
+    @DisplayName("[단위][Web Adapter] Like 등록 여부 조회 category validation fail - 실패 테스트")
+    void userTargetLikeCheckCategoryValidationFailTest() throws Exception {
+        //given
+        String testCategory = "badCategory";
+
+        //when
+        ResultActions resultActions = mockMvc.perform(
+                get(GlobalUrl.LIKE_ROOT + GlobalUrl.PATH_VARIABLE_CATEGORY_WITH_BRACE + GlobalUrl.PATH_VARIABLE_TARGET_ID_WITH_BRACE
+                        , testCategory, targetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
+        //then
+        resultActions.andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("[단위][Web Adapter] Like 등록 여부 조회 target id validation fail - 실패 테스트")
+    void userTargetLikeCheckTargetIdValidationFailTest() throws Exception {
+        //given
+        String testTargetId = "badTargetId";
+
+        //when
+        ResultActions resultActions = mockMvc.perform(
+                get(GlobalUrl.LIKE_ROOT + GlobalUrl.PATH_VARIABLE_CATEGORY_WITH_BRACE + GlobalUrl.PATH_VARIABLE_TARGET_ID_WITH_BRACE
+                        , category, testTargetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
+        //then
+        resultActions.andExpect(status().isBadRequest())
+                .andDo(print());
+    }
 }

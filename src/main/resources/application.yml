@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: comment-service
+    name: like-service
   h2:
     console:
       enabled: true

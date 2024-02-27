@@ -2,9 +2,11 @@ package com.onetwo.likeservice.application.port.in.usecase;
 
 import com.onetwo.likeservice.application.port.in.command.CountLikeCommand;
 import com.onetwo.likeservice.application.port.in.command.LikeFilterCommand;
+import com.onetwo.likeservice.application.port.in.command.LikeTargetCheckCommand;
 import com.onetwo.likeservice.application.port.in.command.RegisterLikeCommand;
 import com.onetwo.likeservice.application.port.in.response.CountLikeResponseDto;
 import com.onetwo.likeservice.application.port.in.response.FilteredLikeResponseDto;
+import com.onetwo.likeservice.application.port.in.response.LikeTargetCheckResponseDto;
 import com.onetwo.likeservice.application.port.out.ReadLikePort;
 import com.onetwo.likeservice.application.service.converter.LikeUseCaseConverter;
 import com.onetwo.likeservice.application.service.service.LikeService;
@@ -24,6 +26,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 
@@ -64,6 +67,23 @@ class ReadLikeUseCaseTest {
         //then
         Assertions.assertNotNull(result);
         assertEquals(likeCount, result.likeCount());
+    }
+
+    @Test
+    @DisplayName("[단위][Use Case] Like 등록 여부 조회 - 성공 테스트")
+    void userTargetLikeCheckUseCaseSuccessTest() {
+        //given
+        LikeTargetCheckCommand likeTargetCheckCommand = new LikeTargetCheckCommand(userId, category, targetId);
+        LikeTargetCheckResponseDto likeTargetCheckResponseDto = new LikeTargetCheckResponseDto(true);
+
+        given(readLikePort.countLikeByUserIdAndCategoryAndTargetId(anyString(), anyInt(), anyLong())).willReturn(1);
+        given(likeUseCaseConverter.resultToLikeTargetCheckResponseDto(anyBoolean())).willReturn(likeTargetCheckResponseDto);
+        //when
+        LikeTargetCheckResponseDto result = readLikeUseCase.userLikeTargetCheck(likeTargetCheckCommand);
+
+        //then
+        Assertions.assertNotNull(result);
+        assertTrue(result.isUserLikeTarget());
     }
 
     @Test

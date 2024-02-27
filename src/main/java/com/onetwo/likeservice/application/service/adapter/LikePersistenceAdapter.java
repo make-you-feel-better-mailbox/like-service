@@ -54,6 +54,13 @@ public class LikePersistenceAdapter implements RegisterLikePort, ReadLikePort, U
     }
 
     @Override
+    public int countLikeByUserIdAndCategoryAndTargetId(String userId, Integer category, Long targetId) {
+        Integer countLike = likeRepository.countByUserIdAndCategoryAndTargetIdAndState(userId, category, targetId, GlobalStatus.PERSISTENCE_NOT_DELETED);
+
+        return countLike == null ? 0 : countLike;
+    }
+
+    @Override
     public Like registerLike(Like newLike) {
         LikeEntity likeEntity = LikeEntity.domainToEntity(newLike);
 

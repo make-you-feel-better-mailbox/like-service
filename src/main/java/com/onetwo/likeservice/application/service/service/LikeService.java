@@ -1,13 +1,7 @@
 package com.onetwo.likeservice.application.service.service;
 
-import com.onetwo.likeservice.application.port.in.command.CountLikeCommand;
-import com.onetwo.likeservice.application.port.in.command.DeleteLikeCommand;
-import com.onetwo.likeservice.application.port.in.command.LikeFilterCommand;
-import com.onetwo.likeservice.application.port.in.command.RegisterLikeCommand;
-import com.onetwo.likeservice.application.port.in.response.CountLikeResponseDto;
-import com.onetwo.likeservice.application.port.in.response.DeleteLikeResponseDto;
-import com.onetwo.likeservice.application.port.in.response.FilteredLikeResponseDto;
-import com.onetwo.likeservice.application.port.in.response.RegisterLikeResponseDto;
+import com.onetwo.likeservice.application.port.in.command.*;
+import com.onetwo.likeservice.application.port.in.response.*;
 import com.onetwo.likeservice.application.port.in.usecase.DeleteLikeUseCase;
 import com.onetwo.likeservice.application.port.in.usecase.ReadLikeUseCase;
 import com.onetwo.likeservice.application.port.in.usecase.RegisterLikeUseCase;
@@ -118,9 +112,7 @@ public class LikeService implements RegisterLikeUseCase, DeleteLikeUseCase, Read
     @Override
     @Transactional(readOnly = true)
     public Slice<FilteredLikeResponseDto> filterLike(LikeFilterCommand likeFilterCommand) {
-        boolean isAtLeastConditionNotExist = isAtLeastConditionNotExist(likeFilterCommand);
-
-        if (isAtLeastConditionNotExist)
+        if (isAtLeastConditionNotExist(likeFilterCommand))
             throw new BadRequestException("condition must have user id or target information");
 
         List<Like> likeList = readLikePort.filterLike(likeFilterCommand);
@@ -133,6 +125,21 @@ public class LikeService implements RegisterLikeUseCase, DeleteLikeUseCase, Read
                 .map(likeUseCaseConverter::likeToFilteredResponse).toList();
 
         return new SliceImpl<>(filteredLikeResponseDtoList, likeFilterCommand.getPageable(), hasNext);
+    }
+
+    /**
+     * Get Boolean about User like Target use case
+     *
+     * @param likeTargetCheckCommand request target data and user data
+     * @return Boolean about user like target
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public LikeTargetCheckResponseDto userLikeTargetCheck(LikeTargetCheckCommand likeTargetCheckCommand) {
+        int countLike = readLikePort.countLikeByUserIdAndCategoryAndTargetId(likeTargetCheckCommand.getUserId(),
+                likeTargetCheckCommand.getCategory(), likeTargetCheckCommand.getTargetId());
+
+        return likeUseCaseConverter.resultToLikeTargetCheckResponseDto(countLike > 0);
     }
 
     private boolean isAtLeastConditionNotExist(LikeFilterCommand likeFilterCommand) {

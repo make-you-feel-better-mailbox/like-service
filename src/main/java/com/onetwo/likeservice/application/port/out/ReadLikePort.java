@@ -12,4 +12,6 @@ public interface ReadLikePort {
     int countLikeByCategoryAndTargetId(Integer category, Long targetId);
 
     List<Like> filterLike(LikeFilterCommand likeFilterCommand);
+
+    int countLikeByUserIdAndCategoryAndTargetId(String userId, Integer category, Long targetId);
 }

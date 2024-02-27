@@ -2,9 +2,11 @@ package com.onetwo.likeservice.application.port.in.usecase;
 
 import com.onetwo.likeservice.application.port.in.command.CountLikeCommand;
 import com.onetwo.likeservice.application.port.in.command.LikeFilterCommand;
+import com.onetwo.likeservice.application.port.in.command.LikeTargetCheckCommand;
 import com.onetwo.likeservice.application.port.in.command.RegisterLikeCommand;
 import com.onetwo.likeservice.application.port.in.response.CountLikeResponseDto;
 import com.onetwo.likeservice.application.port.in.response.FilteredLikeResponseDto;
+import com.onetwo.likeservice.application.port.in.response.LikeTargetCheckResponseDto;
 import com.onetwo.likeservice.application.port.out.RegisterLikePort;
 import com.onetwo.likeservice.domain.Like;
 import onetwo.mailboxcommonconfig.common.exceptions.BadRequestException;
@@ -18,6 +20,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @Transactional
@@ -38,6 +42,7 @@ class ReadLikeUseCaseBootTest {
     private final PageRequest pageRequest = PageRequest.of(0, 20);
 
     @Test
+    @Transactional
     @DisplayName("[통합][Use Case] Like 갯수 조회 - 성공 테스트")
     void countLikeUseCaseSuccessTest() {
         //given
@@ -59,6 +64,27 @@ class ReadLikeUseCaseBootTest {
     }
 
     @Test
+    @Transactional
+    @DisplayName("[통합][Use Case] Like 등록 여부 조회 - 성공 테스트")
+    void userTargetLikeCheckUseCaseSuccessTest() {
+        //given
+        LikeTargetCheckCommand likeTargetCheckCommand = new LikeTargetCheckCommand(userId, category, targetId);
+
+        RegisterLikeCommand registerLikeCommand = new RegisterLikeCommand(userId, category, targetId);
+        Like like = Like.createNewLikeByCommand(registerLikeCommand);
+
+        registerLikePort.registerLike(like);
+
+        //when
+        LikeTargetCheckResponseDto result = readLikeUseCase.userLikeTargetCheck(likeTargetCheckCommand);
+
+        //then
+        Assertions.assertNotNull(result);
+        assertTrue(result.isUserLikeTarget());
+    }
+
+    @Test
+    @Transactional
     @DisplayName("[통합][Use Case] Like filter - 성공 테스트")
     void likeFilterUseCaseSuccessTest() {
         //given
@@ -79,6 +105,7 @@ class ReadLikeUseCaseBootTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("[통합][Use Case] Like filter Null Condition - 성공 테스트")
     void likeFilterUseCaseNullConditionSuccessTest() {
         //given
@@ -101,6 +128,7 @@ class ReadLikeUseCaseBootTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("[통합][Use Case] Like filter user id Null Condition - 성공 테스트")
     void likeFilterUseCaseUserIdNullConditionSuccessTest() {
         //given

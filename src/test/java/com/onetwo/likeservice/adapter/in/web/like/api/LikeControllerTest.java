@@ -6,12 +6,15 @@ import com.onetwo.likeservice.adapter.in.web.like.mapper.LikeDtoMapper;
 import com.onetwo.likeservice.adapter.in.web.like.request.RegisterLikeRequest;
 import com.onetwo.likeservice.adapter.in.web.like.response.CountLikeResponse;
 import com.onetwo.likeservice.adapter.in.web.like.response.DeleteLikeResponse;
+import com.onetwo.likeservice.adapter.in.web.like.response.LikeTargetCheckResponse;
 import com.onetwo.likeservice.adapter.in.web.like.response.RegisterLikeResponse;
 import com.onetwo.likeservice.application.port.in.command.CountLikeCommand;
 import com.onetwo.likeservice.application.port.in.command.DeleteLikeCommand;
+import com.onetwo.likeservice.application.port.in.command.LikeTargetCheckCommand;
 import com.onetwo.likeservice.application.port.in.command.RegisterLikeCommand;
 import com.onetwo.likeservice.application.port.in.response.CountLikeResponseDto;
 import com.onetwo.likeservice.application.port.in.response.DeleteLikeResponseDto;
+import com.onetwo.likeservice.application.port.in.response.LikeTargetCheckResponseDto;
 import com.onetwo.likeservice.application.port.in.response.RegisterLikeResponseDto;
 import com.onetwo.likeservice.application.port.in.usecase.DeleteLikeUseCase;
 import com.onetwo.likeservice.application.port.in.usecase.ReadLikeUseCase;
@@ -116,7 +119,6 @@ class LikeControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userId)
     @DisplayName("[단위][Web Adapter] Like 갯수 조회 - 성공 테스트")
     void countLikeSuccessTest() throws Exception {
         //given
@@ -130,6 +132,29 @@ class LikeControllerTest {
         //when
         ResultActions resultActions = mockMvc.perform(
                 get(GlobalUrl.LIKE_COUNT + GlobalUrl.PATH_VARIABLE_CATEGORY_WITH_BRACE + GlobalUrl.PATH_VARIABLE_TARGET_ID_WITH_BRACE
+                        , category, targetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
+        //then
+        resultActions.andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    @WithMockUser(username = userId)
+    @DisplayName("[단위][Web Adapter] Like 등록 여부 조회 - 성공 테스트")
+    void userTargetLikeCheckSuccessTest() throws Exception {
+        //given
+        LikeTargetCheckCommand likeTargetCheckCommand = new LikeTargetCheckCommand(userId, category, targetId);
+        LikeTargetCheckResponseDto likeTargetCheckResponseDto = new LikeTargetCheckResponseDto(true);
+        LikeTargetCheckResponse likeTargetCheckResponse = new LikeTargetCheckResponse(likeTargetCheckResponseDto.isUserLikeTarget());
+
+        when(likeDtoMapper.likeCheckRequestToCommand(anyString(), anyInt(), anyLong())).thenReturn(likeTargetCheckCommand);
+        when(readLikeUseCase.userLikeTargetCheck(any(LikeTargetCheckCommand.class))).thenReturn(likeTargetCheckResponseDto);
+        when(likeDtoMapper.dtoToLikeTargetCheckResponse(any(LikeTargetCheckResponseDto.class))).thenReturn(likeTargetCheckResponse);
+        //when
+        ResultActions resultActions = mockMvc.perform(
+                get(GlobalUrl.LIKE_ROOT + GlobalUrl.PATH_VARIABLE_CATEGORY_WITH_BRACE + GlobalUrl.PATH_VARIABLE_TARGET_ID_WITH_BRACE
                         , category, targetId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON));
