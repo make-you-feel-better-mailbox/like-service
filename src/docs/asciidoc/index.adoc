@@ -151,9 +151,9 @@ http-response
 
 include::{snippets}/count-like/http-response.adoc[]
 
-== 2. Get Filtered Posting
+== 2. Get Filtered Like
 
-=== Filtering Posting
+=== Filtering Like
 
 query-parameters
 
