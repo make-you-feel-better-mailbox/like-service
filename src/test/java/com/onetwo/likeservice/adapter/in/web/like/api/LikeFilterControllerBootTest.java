@@ -69,7 +69,7 @@ class LikeFilterControllerBootTest {
 
     @Test
     @Transactional
-    @DisplayName("[단위][Web Adapter] Like Filter 조회 성공 - 성공 테스트")
+    @DisplayName("[통합][Web Adapter] Like Filter 조회 성공 - 성공 테스트")
     void getFilteredLikeSuccessTest() throws Exception {
         //given
         RegisterLikeCommand registerLikeCommand = new RegisterLikeCommand(userId, category, targetId);
@@ -143,7 +143,7 @@ class LikeFilterControllerBootTest {
 
     @Test
     @Transactional
-    @DisplayName("[단위][Web Adapter] Like Filter user id null 조회 성공 - 성공 테스트")
+    @DisplayName("[통합][Web Adapter] Like Filter user id null 조회 성공 - 성공 테스트")
     void getFilteredLikeNullSuccessTest() throws Exception {
         //given
         for (int i = 0; i <= likeCount; i++) {
@@ -172,7 +172,7 @@ class LikeFilterControllerBootTest {
 
     @Test
     @Transactional
-    @DisplayName("[단위][Web Adapter] Like Filter category null 조회 성공 - 성공 테스트")
+    @DisplayName("[통합][Web Adapter] Like Filter category null 조회 성공 - 성공 테스트")
     void getFilteredLikeNullCategorySuccessTest() throws Exception {
         //given
         for (int i = 0; i <= likeCount; i++) {
