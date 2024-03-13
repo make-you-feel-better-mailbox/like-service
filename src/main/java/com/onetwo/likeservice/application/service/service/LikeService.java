@@ -5,15 +5,19 @@ import com.onetwo.likeservice.application.port.in.response.*;
 import com.onetwo.likeservice.application.port.in.usecase.DeleteLikeUseCase;
 import com.onetwo.likeservice.application.port.in.usecase.ReadLikeUseCase;
 import com.onetwo.likeservice.application.port.in.usecase.RegisterLikeUseCase;
+import com.onetwo.likeservice.application.port.out.LikeLockPort;
 import com.onetwo.likeservice.application.port.out.ReadLikePort;
 import com.onetwo.likeservice.application.port.out.RegisterLikePort;
 import com.onetwo.likeservice.application.port.out.UpdateLikePort;
 import com.onetwo.likeservice.application.service.converter.LikeUseCaseConverter;
+import com.onetwo.likeservice.common.exceptions.NotExpectResultException;
 import com.onetwo.likeservice.common.exceptions.ResourceAlreadyExistsException;
 import com.onetwo.likeservice.domain.Like;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import onetwo.mailboxcommonconfig.common.exceptions.BadRequestException;
 import onetwo.mailboxcommonconfig.common.exceptions.NotFoundResourceException;
+import org.redisson.api.RLock;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
@@ -21,14 +25,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class LikeService implements RegisterLikeUseCase, DeleteLikeUseCase, ReadLikeUseCase {
 
     private final RegisterLikePort registerLikePort;
     private final ReadLikePort readLikePort;
     private final UpdateLikePort updateLikePort;
+    private final LikeLockPort likeLockPort;
     private final LikeUseCaseConverter likeUseCaseConverter;
 
     /**
@@ -41,20 +48,63 @@ public class LikeService implements RegisterLikeUseCase, DeleteLikeUseCase, Read
     @Override
     @Transactional
     public RegisterLikeResponseDto registerLike(RegisterLikeCommand registerLikeCommand) {
-        Optional<Like> optionalLike = readLikePort.findByUserIdAndCategoryAndTargetId(
-                registerLikeCommand.getUserId(),
+        log.info("User Like start : category = {}, target-id = {}, user-id ={}",
                 registerLikeCommand.getCategory(),
-                registerLikeCommand.getTargetId()
+                registerLikeCommand.getTargetId(),
+                registerLikeCommand.getUserId()
         );
 
-        if (optionalLike.isPresent())
-            throw new ResourceAlreadyExistsException("like already exist. user can like target only ones");
+        RLock lock = likeLockPort.getLikeRock(registerLikeCommand.getCategory(), registerLikeCommand.getTargetId(), registerLikeCommand.getUserId());
 
-        Like newLike = Like.createNewLikeByCommand(registerLikeCommand);
+        try {
+            boolean isLocked = lock.tryLock(4, 4, TimeUnit.SECONDS);
 
-        Like savedLike = registerLikePort.registerLike(newLike);
+            if (!isLocked) {
+                // 락 획득에 실패했으므로 예외 처리
+                log.error("fail to get Lock : category = {}, target-id = {}, user-id ={}",
+                        registerLikeCommand.getCategory(),
+                        registerLikeCommand.getTargetId(),
+                        registerLikeCommand.getUserId()
+                );
+            }
 
-        return likeUseCaseConverter.likeToRegisterResponseDto(savedLike);
+            log.info("User get Like Lock : category = {}, target-id = {}, user-id ={}",
+                    registerLikeCommand.getCategory(),
+                    registerLikeCommand.getTargetId(),
+                    registerLikeCommand.getUserId()
+            );
+
+            Optional<Like> optionalLike = readLikePort.findByUserIdAndCategoryAndTargetId(
+                    registerLikeCommand.getUserId(),
+                    registerLikeCommand.getCategory(),
+                    registerLikeCommand.getTargetId()
+            );
+
+            if (optionalLike.isPresent())
+                throw new ResourceAlreadyExistsException("like already exist. user can like target only ones");
+
+            Like newLike = Like.createNewLikeByCommand(registerLikeCommand);
+
+            Like savedLike = registerLikePort.registerLike(newLike);
+
+            return likeUseCaseConverter.likeToRegisterResponseDto(savedLike);
+        } catch (InterruptedException e) {
+            // 쓰레드가 인터럽트 될 경우의 예외 처리
+            log.error("Lock get error = " + e);
+
+            throw new NotExpectResultException(e.getMessage());
+        } finally {
+            if (lock.isLocked() && lock.isHeldByCurrentThread()) {
+                // 락 해제
+                lock.unlock();
+            }
+
+            log.info("User return Like Lock : category = {}, target-id = {}, user-id ={}",
+                    registerLikeCommand.getCategory(),
+                    registerLikeCommand.getTargetId(),
+                    registerLikeCommand.getUserId()
+            );
+        }
     }
 
     /**
