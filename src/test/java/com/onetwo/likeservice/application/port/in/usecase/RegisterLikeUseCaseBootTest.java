@@ -28,7 +28,7 @@ class RegisterLikeUseCaseBootTest {
     private final long targetId = 11L;
 
     @Test
-    @DisplayName("[단위][Use Case] Like 등록 - 성공 테스트")
+    @DisplayName("[통합][Use Case] Like 등록 - 성공 테스트")
     void registerLikeUseCaseSuccessTest() {
         //given
         RegisterLikeCommand registerLikeCommand = new RegisterLikeCommand(userId, category, targetId);
@@ -42,7 +42,7 @@ class RegisterLikeUseCaseBootTest {
     }
 
     @Test
-    @DisplayName("[단위][Use Case] Like 등록 like 기등록 - 실패 테스트")
+    @DisplayName("[통합][Use Case] Like 등록 like 기등록 - 실패 테스트")
     void registerLikeUseCaseLikeAlreadyExistFailTest() {
         //given
         RegisterLikeCommand registerLikeCommand = new RegisterLikeCommand(userId, category, targetId);

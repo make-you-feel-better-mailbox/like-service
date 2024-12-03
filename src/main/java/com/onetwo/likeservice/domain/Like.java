@@ -14,6 +14,7 @@ public class Like extends BaseDomain {
 
     private Long id;
     private String userId;
+    /* 1: posing 2:comment */
     private Integer category;
     private Long targetId;
     private Boolean state;
@@ -47,5 +48,19 @@ public class Like extends BaseDomain {
     private void setDefaultState() {
         setCreatedAt(Instant.now());
         setCreateUser(this.userId);
+    }
+
+    public void deleteLike() {
+        this.state = true;
+        setUpdatedAt(Instant.now());
+        setUpdateUser(this.userId);
+    }
+
+    public boolean isDeleted() {
+        return this.state;
+    }
+
+    public boolean isSameUserId(String userId) {
+        return this.userId.equals(userId);
     }
 }

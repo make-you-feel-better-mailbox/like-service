@@ -6,7 +6,7 @@ import lombok.Getter;
 import onetwo.mailboxcommonconfig.common.SelfValidating;
 
 @Getter
-public final class RegisterLikeCommand extends SelfValidating<RegisterLikeCommand> {
+public final class LikeTargetCheckCommand extends SelfValidating<LikeTargetCheckCommand> {
 
     @NotEmpty
     private final String userId;
@@ -17,7 +17,7 @@ public final class RegisterLikeCommand extends SelfValidating<RegisterLikeComman
     @NotNull
     private final Long targetId;
 
-    public RegisterLikeCommand(String userId, Integer category, Long targetId) {
+    public LikeTargetCheckCommand(String userId, Integer category, Long targetId) {
         this.userId = userId;
         this.category = category;
         this.targetId = targetId;
