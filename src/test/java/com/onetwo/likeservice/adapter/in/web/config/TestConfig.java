@@ -1,15 +1,16 @@
 package com.onetwo.likeservice.adapter.in.web.config;
 
-import com.onetwo.likeservice.common.config.filter.AccessKeyCheckFilter;
-import com.onetwo.likeservice.common.jwt.TokenProvider;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import onetwo.mailboxcommonconfig.common.filter.AccessKeyCheckFilter;
+import onetwo.mailboxcommonconfig.common.jwt.TokenProvider;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -64,11 +65,16 @@ public class TestConfig {
 
     @Bean
     @Primary
-    public AccessKeyCheckFilter accessKeyCheckFilter() {
-        return new TestAccessKeyCheckFilter();
+    public AccessKeyCheckFilter accessKeyCheckFilter(Environment environment) {
+        return new TestAccessKeyCheckFilter(environment);
     }
 
     class TestAccessKeyCheckFilter extends AccessKeyCheckFilter {
+
+        public TestAccessKeyCheckFilter(Environment environment) {
+            super(environment);
+        }
+
         @Override
         public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
             filterChain.doFilter(request, response);

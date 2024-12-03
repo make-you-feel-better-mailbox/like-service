@@ -2,6 +2,7 @@ package com.onetwo.likeservice.application.port;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import onetwo.mailboxcommonconfig.common.SelfValidating;
 import org.springframework.data.domain.Pageable;
 
 @Getter
